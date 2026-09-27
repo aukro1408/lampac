@@ -1,33 +1,24 @@
+
 name: Sync to HF Space
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Push to Hugging Face Space
-        run: |
-          cat > README.md << 'EOF'
-          ---
-          title: Lampa
-          emoji: 📺
-          colorFrom: blue
-          colorTo: indigo
-          sdk: static
-          pinned: false
-          ---
 
-          # Lampa
-          EOF
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Sync Lampa to HF Space" || true
-          git remote add hf "https://aukro:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/aukro/Lampa"
-          git push hf main --force
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf \
+            "https://aukro:${HF_TOKEN}@huggingface.co/spaces/aukro/Lampa"
+
+          git push hf HEAD:main --force
